@@ -1,1 +1,1 @@
-{"root":["./src/app.ts","./src/index.ts","./src/controllers/authController.ts","./src/middlewares/authMiddleware.ts","./src/routes/authRoutes.ts"],"errors":true,"version":"5.7.3"}
+{"root":["./src/app.ts","./src/index.ts","./src/controllers/authController.ts","./src/middlewares/authMiddleware.ts","./src/routes/authRoutes.ts","./types/express.d.ts"],"version":"5.7.3"}
