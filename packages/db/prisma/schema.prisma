@@ -14,11 +14,51 @@ datasource db {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
+  id        String     @id @default(uuid())
   firstName String
   lastName  String
-  username  String    @unique
+  username  String     @unique
   password  String
+  avatar    String?
+  lastSeen  DateTime?
+
+
+  chats     Chat[]
+  messages  Message[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Chat {
+  id        String      @id @default(uuid())
+  isGroup   Boolean     @default(false)
+  groupName String?
+  members   ChatUser[]
+  messages  Message[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model ChatUser {
+  id       String    @id @default(uuid())
+  userId   String
+  chatId   String
+
+  users    User     @relation(fields:[userId], references:[id])
+  chats    Chat     @relation(fields:[chatId], references:[id])
+  joinedAt DateTime  @default(now())
+
+}
+
+
+
+model Message {
+  id        String    @id @default(uuid())
+  content   String
+  sender    User     @relation(fields: [senderId], references: [id])
+  senderId  String
+  chat      Chat     @relation(fields: [chatId], references: [id])
+  chatId    String
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }
