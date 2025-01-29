@@ -17,13 +17,13 @@ export const LoginSchema = z.object({
 export const ChatSchema = z.object({
     isGroup: z.boolean(),
     groupName: z.string().optional(),
-    members: z.array(z.string().uuid()).min(1),
+    members: z.array(z.string()),
     messages: z.array(
         z.object({
-            content: z.string().min(1),
+            content: z.string().min(2),
             senderId: z.string(),
-            chatId: z.string().uuid(),
-            createdAt: z.date().optional(),
+            chatId: z.string(),
+            createdAt: z.date().optional()
         })
-    ).optional()
+    )
 })

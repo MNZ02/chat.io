@@ -29,41 +29,44 @@ export const getChatByUserId = async (req: Request, res: Response) => {
         res.status(500).json({ message: "Internal server error" })
     }
 }
-
 export const createChat = async (req: Request, res: Response) => {
     try {
         const parsedData = ChatSchema.safeParse(req.body);
-
         if (!parsedData.success) {
-            res.status(400).json({ message: "Zod validation failed" });
+            res.status(400).json({ message: 'Zod validation failed' })
             return
         }
 
-        const { isGroup, groupName, members, messages } = parsedData.data;
+        const { isGroup, groupName, members, messages } = parsedData.data
 
         const chat = await prisma.chat.create({
             data: {
                 isGroup,
                 groupName: isGroup ? groupName : null,
                 members: {
-                    create: members.map(userId => ({
-                        userId,
-                    })),
+                    create: members.map((userId) => { return { userId } })
                 },
-                messages: messages
-                    ? {
-                        create: messages.map(msg => ({
+                messages: messages ? {
+                    create: messages.map((msg) => {
+                        return {
                             content: msg.content,
-                            senderId: msg.senderId,
-                        })),
-                    }
-                    : undefined,
+                            senderId: msg.senderId
+                        }
+                    })
+                } : undefined
             },
-        });
+            include: { members: true, messages: true }
+        })
 
-        res.status(201).json({ message: 'Chat created successfully', chat });
+        if (!chat) {
+            res.status(400).json({ message: 'Error creating chat' })
+            return
+        }
+
+        res.status(201).json({ chat })
     } catch (error) {
-        console.error('Error creating chat', error);
-        res.status(500).json({ message: 'Internal server error' });
+
+        console.error('Error creating chat', error)
+        res.status(500).json({ message: "Internal server error" })
     }
-};
+}
