@@ -33,6 +33,7 @@ export const createChat = async (req: Request, res: Response) => {
     try {
         const parsedData = ChatSchema.safeParse(req.body);
         if (!parsedData.success) {
+            console.log(parsedData.error)
             res.status(400).json({ message: 'Zod validation failed' })
             return
         }
