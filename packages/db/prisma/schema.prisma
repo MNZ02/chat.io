@@ -14,10 +14,10 @@ datasource db {
 }
 
 model User {
-  id        String     @id @default(uuid())
+  id        String      @id @default(uuid())
   firstName String
   lastName  String
-  username  String     @unique
+  username  String      @unique
   password  String
   avatar    String?
   lastSeen  DateTime?
@@ -25,8 +25,10 @@ model User {
 
   chats     Chat[]
   messages  Message[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  ChatUser  ChatUser[]
 }
 
 model Chat {
@@ -37,6 +39,8 @@ model Chat {
   messages  Message[]
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
+
+  User      User[]
 }
 
 model ChatUser {
@@ -48,6 +52,8 @@ model ChatUser {
   chats    Chat     @relation(fields:[chatId], references:[id])
   joinedAt DateTime  @default(now())
 
+
+  @@unique([userId, chatId])
 }
 
 
