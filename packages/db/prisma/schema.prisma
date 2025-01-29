@@ -25,10 +25,10 @@ model User {
 
   chats     Chat[]
   messages  Message[]
+  ChatUser  ChatUser[]
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
 
-  ChatUser  ChatUser[]
 }
 
 model Chat {
