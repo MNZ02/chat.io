@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "@repo/db/client";
+import { ChatSchema } from "@repo/common/types";
 
 
 export const getChatByUserId = async (req: Request, res: Response) => {
@@ -31,10 +32,38 @@ export const getChatByUserId = async (req: Request, res: Response) => {
 
 export const createChat = async (req: Request, res: Response) => {
     try {
+        const parsedData = ChatSchema.safeParse(req.body);
 
+        if (!parsedData.success) {
+            res.status(400).json({ message: "Zod validation failed" });
+            return
+        }
 
+        const { isGroup, groupName, members, messages } = parsedData.data;
+
+        const chat = await prisma.chat.create({
+            data: {
+                isGroup,
+                groupName: isGroup ? groupName : null,
+                members: {
+                    create: members.map(userId => ({
+                        userId,
+                    })),
+                },
+                messages: messages
+                    ? {
+                        create: messages.map(msg => ({
+                            content: msg.content,
+                            senderId: msg.senderId,
+                        })),
+                    }
+                    : undefined,
+            },
+        });
+
+        res.status(201).json({ message: 'Chat created successfully', chat });
     } catch (error) {
-        console.error('Error creating chat', error)
-        res.status(500).json({ message: 'Internal server error' })
+        console.error('Error creating chat', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
-}
+};
