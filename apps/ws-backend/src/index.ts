@@ -1,25 +1,14 @@
 import http from 'http'
 import { Server } from 'socket.io'
-import axios from 'axios'
+import axios from 'axios';
 
 const PORT = 8080;
-const URI = 'http://localhost:3001/api/v1'
+export const URI = 'http://localhost:3001/api/v1'
 
 const server = http.createServer()
 
 
-interface Payload {
-    id: string
-    firstName: string
-    lastName: string
-    username: string
-    password: string
-    avatar?: string,
-    lastSeen?: string
-}
-
-
-const io = new Server(server, {
+export const io = new Server(server, {
     cors: {
         origin: '*',
         methods: ["GET", "POST"]
@@ -27,17 +16,23 @@ const io = new Server(server, {
 })
 
 
-//Middleware
-
+//Middleware for authentication
 io.use(async (socket, next) => {
     try {
-        const token = socket.handshake.auth.token
+        const token = socket.handshake.auth?.token
+
+        if (!token) {
+            return next(new Error("Authentication Error: Token missing"));
+        }
+
         const response = await axios.get(`${URI}/me`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
         })
         console.log({ response })
+        socket.data.user = response.data
+        next();
     } catch (error) {
         next(new Error("Authentication Error"))
     }
@@ -50,6 +45,30 @@ io.use(async (socket, next) => {
 io.on('connection', (socket) => {
     console.log(`User connected ${socket.id}`)
 
+
+
+    //Join Room
+
+    socket.on('joinRoom', async (roomId) => {
+        const response = await axios.get(`${URI}/rooms/${roomId}`, {
+            headers: {
+                Authorization: `Bearer ${socket.handshake.auth.token}`
+            }
+        })
+
+        console.log({ response })
+        socket.join(roomId)
+        socket.data.roomId = roomId
+        console.log(`${socket.data.user} joined ${roomId}`);
+
+    })
+
+
+    //Leave room
+    socket.on('leaveRoom', (roomId) => {
+        socket.leave(roomId);
+        delete socket.data.roomId;
+    });
 
     //Handle messages
     socket.on('sendMessage', async (message) => {
