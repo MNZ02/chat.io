@@ -1,6 +1,7 @@
 import http from 'http'
 import { Server } from 'socket.io'
 import axios from 'axios';
+import { prisma } from '@repo/db/client'
 
 const PORT = 8080;
 export const URI = 'http://localhost:3001/api/v1'
@@ -32,7 +33,7 @@ io.use(async (socket, next) => {
             }
         })
         socket.data.token = token
-        socket.data.user = response.data
+        socket.data.user = response.data.user
         next();
     } catch (error) {
         console.error("Authentication Error:", error);
@@ -60,6 +61,7 @@ io.on('connection', async (socket) => {
             }
         })
         const chats = response.data.chats;
+        console.log({ chats })
         if (Array.isArray(chats) && chats?.length) {
             chats.forEach(chat => socket.join(chat.id))
             console.log(`User ${userId} joined ${chats.length} rooms`)
@@ -75,24 +77,16 @@ io.on('connection', async (socket) => {
 
     socket.on('joinRoom', async (roomId) => {
         try {
-
-            const response = await axios.get(`${URI}/chats`, {
-                headers: {
-                    Authorization: `Bearer ${authHeader}`
-                }
-            })
-
-            const chats = response.data.chats
-            const isMember = chats.some((chat: { id: any; }) => chat.id === roomId)
-
-            if (!isMember) {
-                return socket.emit("error", { message: "Unauthorized to join this room" });
+            if (typeof roomId !== "string") {
+                throw new Error("Invalid roomId. Expected a string.");
             }
+
+            console.log(`Joining room: ${roomId}`);
 
 
             socket.join(roomId)
             socket.data.roomId = roomId
-            console.log(`${socket.data.user} joined ${roomId}`);
+            console.log(`User ${socket.data.user.id} joined room ${roomId}`);
 
 
             //Notify team members
@@ -114,21 +108,43 @@ io.on('connection', async (socket) => {
 
     //Handle messages
     socket.on('sendMessage', async (message) => {
-        console.log('Message received', message)
         try {
-            if (!message?.content?.trim()) {
+            const data = typeof message === "string" ? JSON.parse(message) : message;
+            console.log("Received message:", data);
+            if (!data?.content?.trim()) {
                 throw new Error('Message cannot be empty')
             }
 
-            const response = await axios.post(`${URI}/chat`, {
-                content: message.content,
-                chatId: socket.data.roomId
-            }, {
-                headers: {
-                    Authorization: `Bearer ${socket.data.token}`
-                }
+            if (!socket.data.roomId) {
+                throw new Error('Not in a chat room')
+            }
+
+            //verify user is still in the chat
+            // const chatMembership = await prisma.chatUser.findFirst({
+            //     where: {
+            //         chatId: socket.data.roomId,
+            //         userId: socket.data.user.id
+            //     }
+            // })
+
+            // if (!chatMembership) {
+            //     throw new Error('No longer in the chat')
+            // }
+
+
+            const response = await prisma.message.create({
+                data: {
+                    content: data.content,
+                    chatId: socket.data.roomId,
+                    senderId: socket.data.user.id
+                },
+                include: { sender: true }
             })
-            console.log(response.data)
+
+            // Broadcast to room (excluding sender if needed)
+            socket.to(socket.data.roomId).emit('receiveMessage', response);
+
+
         } catch (error) {
             console.error('Message error: ', error)
             socket.disconnect(true)
@@ -153,3 +169,7 @@ io.on('connection', async (socket) => {
 server.listen(PORT, () => {
     console.log(`WS server running on port ${PORT}`)
 })
+
+function callback(arg0: { status: string; message: { status: string; id: any; content: any; chatId: any; createdAt: any; sender: { id: any; name: any; avatar: any; }; }; }) {
+    throw new Error('Function not implemented.');
+}
