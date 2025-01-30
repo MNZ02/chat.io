@@ -1,6 +1,7 @@
 import http from 'http'
 import { Server } from 'socket.io'
 import axios from 'axios';
+import { resolveSoa } from 'dns';
 
 const PORT = 8080;
 export const URI = 'http://localhost:3001/api/v1'
@@ -31,7 +32,6 @@ io.use(async (socket, next) => {
                 Authorization: `Bearer ${token}`
             }
         })
-        console.log(response.data)
         socket.data.user = response.data
         next();
     } catch (error) {
@@ -49,6 +49,7 @@ io.on('connection', async (socket) => {
     console.log(`User connected ${socket.id}`)
 
     const authHeader = socket.handshake.query;
+    const userId = socket.data.user.id;
 
 
     //Fetch user connections
@@ -58,7 +59,11 @@ io.on('connection', async (socket) => {
                 Authorization: `Bearer ${authHeader.query}`
             }
         })
-        console.log(response.data)
+        const chats = response.data.chats;
+        if (Array.isArray(chats) && chats?.length) {
+            chats.forEach(chat => socket.join(chat.id))
+            console.log(`User ${userId} joined ${chats.length} rooms`)
+        }
 
     } catch (error) {
         console.error('Error fetching user connections', error)
@@ -68,34 +73,37 @@ io.on('connection', async (socket) => {
 
     //Join Room
 
-    // socket.on('joinRoom', async (roomId) => {
-    //     try {
+    socket.on('joinRoom', async (roomId) => {
+        try {
 
-    //         const response = await axios.get(`${URI}/rooms/${roomId}`, {
-    //             headers: {
-    //                 Authorization: `Bearer ${socket.handshake.auth.token}`
-    //             }
-    //         })
+            const response = await axios.get(`${URI}/chats`, {
+                headers: {
+                    Authorization: `Bearer ${authHeader}`
+                }
+            })
 
-    //         console.log({ response })
-    //         if (!response.data) {
-    //             return socket.emit("error", { message: "Room not found" });
-    //         }
+            const chats = response.data.chats
+            const isMember = chats.some((chat: { id: any; }) => chat.id === roomId)
 
-    //         socket.join(roomId)
-    //         socket.data.roomId = roomId
-    //         console.log(`${socket.data.user} joined ${roomId}`);
+            if (!isMember) {
+                return socket.emit("error", { message: "Unauthorized to join this room" });
+            }
 
 
-    //         //Notify team members
-    //         io.to(roomId).emit('User joined', { userId: socket.data.user.id })
-
-    //     } catch (error) {
-    //         console.error('Error joining room ', error)
-    //     }
+            socket.join(roomId)
+            socket.data.roomId = roomId
+            console.log(`${socket.data.user} joined ${roomId}`);
 
 
-    // })
+            //Notify team members
+            io.to(roomId).emit('User joined', { userId: socket.data.user.id })
+
+        } catch (error) {
+            console.error('Error joining room ', error)
+        }
+
+
+    })
 
 
     //Leave room
