@@ -19,58 +19,63 @@ export const io = new Server(server, {
 
 //Middleware for authentication
 io.use(async (socket, next) => {
+
+    const token = socket.handshake.query.query;
+    if (!token) {
+        next(new Error("Token not found"))
+    }
+
     try {
-        const authHeader = socket.handshake.query.query;
-        const token = socket.handshake.auth?.token || authHeader
-
-        if (!token) {
-            return next(new Error("Authentication Error: Token missing"));
-        }
-
         const response = await axios.get(`${URI}/me`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
         })
+
         socket.data.token = token
         socket.data.user = response.data.user
         next();
+
     } catch (error) {
-        console.error("Authentication Error:", error);
-        next(new Error("Authentication Error"))
-
+        console.error('Error authenticating token', error)
+        next(new Error('Error authenticating token'))
     }
+
+
 })
-
-
 
 //Connection logic
 
 io.on('connection', async (socket) => {
     console.log(`User connected ${socket.id}`)
 
-    const authHeader = socket.handshake.query;
+    const token = socket.data.token;
     const userId = socket.data.user.id;
 
 
-    //Fetch user connections
+    //Fetch user chats on inital connection
+
     try {
         const response = await axios.get(`${URI}/chats`, {
             headers: {
-                Authorization: `Bearer ${authHeader.query}`
+                Authorization: `Bearer ${token}`
             }
         })
-        const chats = response.data.chats;
-        console.log({ chats })
-        if (Array.isArray(chats) && chats?.length) {
-            chats.forEach(chat => socket.join(chat.id))
-            console.log(`User ${userId} joined ${chats.length} rooms`)
+        const chats = response.data.chats
+        if (!Array.isArray(chats) || chats.length === 0) {
+            console.log(`User ${userId} has no chats`);
+            return;
         }
 
-    } catch (error) {
-        console.error('Error fetching user connections', error)
-    }
 
+        chats.forEach((chat) => socket.join(chat.id))
+        console.log(`User ${userId} joined ${chats.length} rooms`)
+
+
+    } catch (error: any) {
+        console.error('Error getting user chats', error?.message)
+        throw new Error('Error getting user chats')
+    }
 
 
     //Join Room
