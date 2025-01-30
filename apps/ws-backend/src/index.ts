@@ -1,7 +1,6 @@
 import http from 'http'
 import { Server } from 'socket.io'
 import axios from 'axios';
-import { resolveSoa } from 'dns';
 
 const PORT = 8080;
 export const URI = 'http://localhost:3001/api/v1'
@@ -32,6 +31,7 @@ io.use(async (socket, next) => {
                 Authorization: `Bearer ${token}`
             }
         })
+        socket.data.token = token
         socket.data.user = response.data
         next();
     } catch (error) {
@@ -115,6 +115,25 @@ io.on('connection', async (socket) => {
     //Handle messages
     socket.on('sendMessage', async (message) => {
         console.log('Message received', message)
+        try {
+            if (!message?.content?.trim()) {
+                throw new Error('Message cannot be empty')
+            }
+
+            const response = await axios.post(`${URI}/chat`, {
+                content: message.content,
+                chatId: socket.data.roomId
+            }, {
+                headers: {
+                    Authorization: `Bearer ${socket.data.token}`
+                }
+            })
+            console.log(response.data)
+        } catch (error) {
+            console.error('Message error: ', error)
+            socket.disconnect(true)
+
+        }
 
 
 

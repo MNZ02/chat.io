@@ -71,3 +71,32 @@ export const createChat = async (req: Request, res: Response) => {
         res.status(500).json({ message: "Internal server error" })
     }
 }
+
+
+export const getChatById = async (req: Request, res: Response) => {
+    try {
+        const { chatId } = req.params;
+        const userId = req.userId
+
+        const chat = await prisma.chat.findUnique({
+            where: { id: chatId },
+            include: {
+                members: true, messages: {
+                    orderBy: { createdAt: 'desc' },
+                    take: 50
+                }
+            }
+        })
+
+
+        if (!chat?.members.some((m) => m.id === userId)) {
+            res.status(403).json({ message: "Unauthorised to view this chat" })
+            return
+        }
+        res.status(200).json({ chat })
+    } catch (error) {
+        console.error('Error getting chat by id', error)
+
+        res.status(500).json({ message: "Internal server error" })
+    }
+}
