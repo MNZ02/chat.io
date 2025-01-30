@@ -19,7 +19,8 @@ export const io = new Server(server, {
 //Middleware for authentication
 io.use(async (socket, next) => {
     try {
-        const token = socket.handshake.auth?.token
+        const authHeader = socket.handshake.query.query;
+        const token = socket.handshake.auth?.token || authHeader
 
         if (!token) {
             return next(new Error("Authentication Error: Token missing"));
@@ -30,11 +31,13 @@ io.use(async (socket, next) => {
                 Authorization: `Bearer ${token}`
             }
         })
-        console.log({ response })
+        console.log(response.data)
         socket.data.user = response.data
         next();
     } catch (error) {
+        console.error("Authentication Error:", error);
         next(new Error("Authentication Error"))
+
     }
 })
 
@@ -42,26 +45,57 @@ io.use(async (socket, next) => {
 
 //Connection logic
 
-io.on('connection', (socket) => {
+io.on('connection', async (socket) => {
     console.log(`User connected ${socket.id}`)
+
+    const authHeader = socket.handshake.query;
+
+
+    //Fetch user connections
+    try {
+        const response = await axios.get(`${URI}/chats`, {
+            headers: {
+                Authorization: `Bearer ${authHeader.query}`
+            }
+        })
+        console.log(response.data)
+
+    } catch (error) {
+        console.error('Error fetching user connections', error)
+    }
 
 
 
     //Join Room
 
-    socket.on('joinRoom', async (roomId) => {
-        const response = await axios.get(`${URI}/rooms/${roomId}`, {
-            headers: {
-                Authorization: `Bearer ${socket.handshake.auth.token}`
-            }
-        })
+    // socket.on('joinRoom', async (roomId) => {
+    //     try {
 
-        console.log({ response })
-        socket.join(roomId)
-        socket.data.roomId = roomId
-        console.log(`${socket.data.user} joined ${roomId}`);
+    //         const response = await axios.get(`${URI}/rooms/${roomId}`, {
+    //             headers: {
+    //                 Authorization: `Bearer ${socket.handshake.auth.token}`
+    //             }
+    //         })
 
-    })
+    //         console.log({ response })
+    //         if (!response.data) {
+    //             return socket.emit("error", { message: "Room not found" });
+    //         }
+
+    //         socket.join(roomId)
+    //         socket.data.roomId = roomId
+    //         console.log(`${socket.data.user} joined ${roomId}`);
+
+
+    //         //Notify team members
+    //         io.to(roomId).emit('User joined', { userId: socket.data.user.id })
+
+    //     } catch (error) {
+    //         console.error('Error joining room ', error)
+    //     }
+
+
+    // })
 
 
     //Leave room
