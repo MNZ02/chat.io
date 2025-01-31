@@ -135,16 +135,16 @@ io.on('connection', async (socket) => {
             }
 
             //verify user is still in the chat
-            // const chatMembership = await prisma.chatUser.findFirst({
-            //     where: {
-            //         chatId: socket.data.roomId,
-            //         userId: socket.data.user.id
-            //     }
-            // })
+            const chatMembership = await prisma.chatUser.findFirst({
+                where: {
+                    chatId: socket.data.roomId,
+                    userId: socket.data.user.id
+                }
+            })
 
-            // if (!chatMembership) {
-            //     throw new Error('No longer in the chat')
-            // }
+            if (!chatMembership) {
+                throw new Error('No longer in the chat')
+            }
 
 
             const response = await prisma.message.create({
