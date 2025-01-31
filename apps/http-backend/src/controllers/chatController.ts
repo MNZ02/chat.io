@@ -32,6 +32,7 @@ export const getChatByUserId = async (req: Request, res: Response) => {
 export const createChat = async (req: Request, res: Response) => {
     try {
         const parsedData = ChatSchema.safeParse(req.body);
+        const creatorId = req.userId
         if (!parsedData.success) {
             console.log(parsedData.error)
             res.status(400).json({ message: 'Zod validation failed' })
@@ -40,12 +41,15 @@ export const createChat = async (req: Request, res: Response) => {
 
         const { isGroup, groupName, members, messages } = parsedData.data
 
+
+        //Add logic to check unique members , chat contains admin or not and if messages are sent by the chat member
+
         const chat = await prisma.chat.create({
             data: {
                 isGroup,
                 groupName: isGroup ? groupName : null,
                 members: {
-                    create: members.map((userId) => { return { userId } })
+                    create: members.map((userId) => { return { userId, role: userId === creatorId ? "admin" : "member" } })
                 },
                 messages: messages ? {
                     create: messages.map((msg) => {

@@ -88,6 +88,17 @@ io.on('connection', async (socket) => {
             console.log(`Joining room: ${roomId}`);
 
 
+            //check if a user is a member of the chat
+            const chat = await prisma.chat.findFirst({
+                where: {
+                    id: roomId,
+                    members: { some: { userId: socket.data.user.id } }
+                }
+            })
+            if (!chat) {
+                return socket.emit("error", { message: "Unauthorized to join this room" });
+            }
+
             socket.join(roomId)
             socket.data.roomId = roomId
             console.log(`User ${socket.data.user.id} joined room ${roomId}`);
