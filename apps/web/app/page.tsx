@@ -1,6 +1,7 @@
 import Image, { type ImageProps } from "next/image";
 import { Button } from "@repo/ui/button";
 import styles from "./page.module.css";
+import { MessageCircle, Moon, Sun } from 'lucide-react'
 
 type Props = Omit<ImageProps, "src"> & {
   srcLight: string;
@@ -23,8 +24,22 @@ export default function Home() {
     <div>
       <div className="flex">
 
-        <div className="w-1/3 bg-black">
-          Hello World
+        <div className="w-1/3 bg-gray-100 shadow-2xl m-1">
+          <div className="h-20 flex items-center p-2 justify-between">
+
+
+            <div className="w-10 h-10 bg-gray-600 flex items-center justify-center rounded-full">
+              <h1 className="text-white font-semibold p-4 ">AD</h1>
+            </div>
+
+            <div className="flex gap-3">
+
+              <MessageCircle />
+              <Moon />
+
+            </div>
+
+          </div>
         </div>
 
         <div className="flex flex-col justify-center items-center bg-gray-100 h-screen w-2/3">
