@@ -23,11 +23,11 @@ model User {
   lastSeen  DateTime?
 
 
-  chats     Chat[]
   messages  Message[]
   ChatUser  ChatUser[]
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
+
 
 }
 
@@ -40,13 +40,13 @@ model Chat {
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
 
-  User      User[]
 }
 
 model ChatUser {
   id       String    @id @default(uuid())
   userId   String
   chatId   String
+  role     String    @default("member")
 
   users    User     @relation(fields:[userId], references:[id])
   chats    Chat     @relation(fields:[chatId], references:[id])

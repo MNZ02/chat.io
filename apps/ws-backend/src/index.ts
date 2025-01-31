@@ -48,7 +48,6 @@ io.use(async (socket, next) => {
 
 io.on('connection', async (socket) => {
     console.log(`User connected ${socket.id}`)
-
     const token = socket.data.token;
     const userId = socket.data.user.id;
 
