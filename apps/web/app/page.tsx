@@ -1,7 +1,7 @@
 import Image, { type ImageProps } from "next/image";
 import { Button } from "@repo/ui/button";
 import styles from "./page.module.css";
-import { MessageCircle, Moon, Sun } from 'lucide-react'
+import { MessageCircle, Moon, Sun, Search } from 'lucide-react'
 
 type Props = Omit<ImageProps, "src"> & {
   srcLight: string;
@@ -39,6 +39,12 @@ export default function Home() {
 
             </div>
 
+          </div>
+
+          <div className="flex gap-2 mt-3 bg-gray-200 p-2 ml-2 mr-2 rounded-md">
+            <Search className="text-gray-600" />
+
+            <input type="text" placeholder="Search" className="text-gray-600 outline-none" />
           </div>
         </div>
 
