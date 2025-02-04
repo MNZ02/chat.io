@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { HTTP_URL } from "../../config/config";
+import { useAuthStore } from "../store/useAuthStore";
 
 export default function Login() {
     const router = useRouter();
@@ -15,10 +17,11 @@ export default function Login() {
         setError("");
         try {
             // Replace with your actual login endpoint URL
-            const res = await axios.post("/api/login", { username, password });
+            const res = await axios.post(`${HTTP_URL}/auth/v1/login`, { username, password });
+            console.log({ res })
             const { token } = res.data;
             localStorage.setItem("token", token);
-            router.push("/chat");
+            router.push("/");
         } catch (err: any) {
             console.error("Login error:", err);
             setError("Invalid credentials. Please try again.");
