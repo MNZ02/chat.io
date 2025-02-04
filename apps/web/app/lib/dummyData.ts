@@ -3,6 +3,8 @@ export const chats = [
     { id: 2, name: "Bob Smith", lastMessage: "Did you see the latest update?", time: "Yesterday", unread: 0 },
     { id: 3, name: "Charlie Brown", lastMessage: "Thanks for your help!", time: "Yesterday", unread: 0 },
     { id: 4, name: "Diana Prince", lastMessage: "Can we reschedule?", time: "Tuesday", unread: 1 },
+    { id: 5, name: "Diana Prince", lastMessage: "Can we reschedule?", time: "Tuesday", unread: 1 },
+    { id: 6, name: "Diana Prince", lastMessage: "Can we reschedule?", time: "Tuesday", unread: 1 },
 ];
 export const messages = [
     { id: 1, text: "Hello, how are you?", fromMe: false },
