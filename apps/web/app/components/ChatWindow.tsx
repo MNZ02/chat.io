@@ -25,6 +25,9 @@ function ChatWindow() {
         <div className='flex-1 p-4 overflow-y-auto space-y-4 bg-gray-100'>
             {messages.map((message) => (
                 <div key={message.id} className={`flex ${message.fromMe ? "justify-start" : "justify-end"} `}>
+                    <div className={`max-w-xs p-3 rounded-xl ${message.fromMe ? "bg-blue-500 text-white rounded-bl-none" : "bg-gray-200 text-gray-800 rounded-br-none"}`}>
+                        {message.text}
+                    </div>
 
 
                 </div>
