@@ -1,8 +1,8 @@
 import axios from 'axios'
 import NextAuth from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
+import jwt, { JwtPayload } from 'jsonwebtoken'
 import { HTTP_URL } from '../../../../config/config'
-import { headers } from 'next/headers'
 
 
 export const runtime = 'nodejs'
@@ -26,13 +26,22 @@ const handler = NextAuth({
                         password: credentials.password,
                     });
 
-                    const user = res.data;
+                    const { token } = res.data;
 
-                    if (res.status === 200 && user) {
-                        return user;
+                    if (!token) {
+                        throw new Error("No token received");
                     }
-                    return null;
+                    //Decode JWT to extract userid
+                    const decodedToken = jwt.decode(token) as { userId: string }
 
+                    if (!decodedToken || !decodedToken.userId) {
+                        throw new Error("Invalid token");
+                    }
+
+                    return {
+                        id: decodedToken.userId,
+                        token,
+                    };
                 } catch (error) {
                     console.error("Error in authorize:", error);
                     return null;
