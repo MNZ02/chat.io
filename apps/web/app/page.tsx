@@ -6,8 +6,7 @@ import { MessageCircle, Moon, Sun, Search, Archive } from 'lucide-react'
 import Sidebar from "./components/Sidebar";
 import ChatWindow from "./components/ChatWindow";
 import Login from "./Login/page";
-import { useState } from "react";
-
+import { useAuthStore } from "./store/useAuthStore";
 type Props = Omit<ImageProps, "src"> & {
   srcLight: string;
   srcDark: string;
@@ -27,15 +26,23 @@ const ThemeImage = (props: Props) => {
 
 
 export default function Home() {
+  const { token } = useAuthStore()
+  console.log({ token })
   return (
     <div>
-      <Login />
-      <div className="flex">
+      {!token ? (
+        <Login />
 
-        <Sidebar />
-        <ChatWindow />
+      ) : (
+        <div className="flex">
 
-      </div>
+          <Sidebar />
+          <ChatWindow />
+
+        </div>
+      )
+      }
+
     </div>
   );
 } 

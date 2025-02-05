@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { HTTP_URL } from "../../config/config";
@@ -12,6 +12,15 @@ export default function Login() {
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
 
+
+    useEffect(() => {
+        const token = localStorage.getItem('token')
+        if (token) {
+
+            useAuthStore.getState()?.setAuth(token)
+        }
+    })
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError("");
@@ -21,6 +30,7 @@ export default function Login() {
             console.log({ res })
             const { token } = res.data;
             localStorage.setItem("token", token);
+            useAuthStore.getState()?.setAuth(token)
             router.push("/");
         } catch (err: any) {
             console.error("Login error:", err);
