@@ -1,10 +1,9 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
+
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
-import { HTTP_URL } from "../../config/config";
-import { useAuthStore } from "../store/useAuthStore";
+import { signIn } from "next-auth/react"
 
 export default function Login() {
     const router = useRouter();
@@ -13,30 +12,24 @@ export default function Login() {
     const [error, setError] = useState("");
 
 
-    useEffect(() => {
-        const token = localStorage.getItem('token')
-        if (token) {
-
-            useAuthStore.getState()?.setAuth(token)
-        }
-    })
-
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setError("");
-        try {
-            // Replace with your actual login endpoint URL
-            const res = await axios.post(`${HTTP_URL}/auth/v1/login`, { username, password });
-            console.log({ res })
-            const { token } = res.data;
-            localStorage.setItem("token", token);
-            useAuthStore.getState()?.setAuth(token)
-            router.push("/");
-        } catch (err: any) {
-            console.error("Login error:", err);
-            setError("Invalid credentials. Please try again.");
+        setError('');
+
+
+        const result = await signIn("credentials", {
+            redirect: false,
+            username,
+            password
+        })
+        if (result?.error) {
+            setError('Invalid credentials, Please try again')
         }
-    };
+        else {
+            router.push('/home')
+        }
+
+    }
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-green-400 to-green-600 dark:from-gray-900 dark:to-gray-700">

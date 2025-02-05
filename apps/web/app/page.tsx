@@ -1,12 +1,9 @@
 "use client"
 import Image, { type ImageProps } from "next/image";
-import { Button } from "@repo/ui/button";
-import styles from "./page.module.css";
-import { MessageCircle, Moon, Sun, Search, Archive } from 'lucide-react'
+
 import Sidebar from "./components/Sidebar";
 import ChatWindow from "./components/ChatWindow";
-import Login from "./Login/page";
-import { useAuthStore } from "./store/useAuthStore";
+import Login from "./login/page";
 type Props = Omit<ImageProps, "src"> & {
   srcLight: string;
   srcDark: string;
@@ -26,22 +23,10 @@ const ThemeImage = (props: Props) => {
 
 
 export default function Home() {
-  const { token } = useAuthStore()
-  console.log({ token })
+
   return (
     <div>
-      {!token ? (
-        <Login />
-
-      ) : (
-        <div className="flex">
-
-          <Sidebar />
-          <ChatWindow />
-
-        </div>
-      )
-      }
+      <Login />
 
     </div>
   );
