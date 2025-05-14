@@ -24,3 +24,18 @@ export const getUser = async (req: Request, res: Response) => {
         res.status(500).json({ message: "Internal server error" })
     }
 }
+
+export const getAllUsers = async (req: Request, res: Response) => {
+    try {
+        const users = await prisma.user.findMany({})
+
+        if (!users) {
+            res.status(404).json({ message: "No users found" })
+            return
+        }
+        res.status(200).json({ users })
+    } catch (error) {
+        console.error('Error getting all users', error)
+        res.status(500).json({ message: "Internal server error" })
+    }
+}
