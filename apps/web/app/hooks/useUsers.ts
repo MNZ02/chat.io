@@ -1,6 +1,5 @@
 import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 
 
 export interface User {
@@ -8,36 +7,25 @@ export interface User {
     firstName: string;
     lastName: string;
     avatarUrl?: string;
-}
+    username: string;
+    createdAt: string;
 
+}
 
 export function useUsers(autoFetch = false) {
 
-    const { data: session } = useSession()
-    const token = (session?.user as any)?.accessToken;
 
-    const [users, setUsers] = useState<User | null>(null);
+    const [users, setUsers] = useState<User[] | null>(null);
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
     const fetchUsers = useCallback(async () => {
-        if (!token) {
-            setError("No Auth token");
-            return;
-        }
+
         try {
             setLoading(true)
             setError(null)
-            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE}/api/v1/users`,
-                {
-
-                    headers: {
-                        Authorizaton: `Bearer ${token}`
-                    }
-                }
-            )
-            console.log({ response })
-            setUsers(response.data)
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE}/api/v1/all/users`)
+            setUsers(response.data.users)
             return response.data;
         }
         catch (error: any) {
@@ -56,5 +44,7 @@ export function useUsers(autoFetch = false) {
             fetchUsers();
         }
     }, [autoFetch, fetchUsers]);
+
+
     return { fetchUsers, users, loading, error }
 }

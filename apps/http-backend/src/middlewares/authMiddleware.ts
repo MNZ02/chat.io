@@ -5,6 +5,7 @@ import { JWT_SECRET } from '@repo/backend-common/config';
 
 
 export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+    console.log(`→ authMiddleware: ${req.method} ${req.originalUrl}`);
     try {
         const authHeader = req.headers.authorization;
 

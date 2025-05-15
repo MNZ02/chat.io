@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { MessageCirclePlusIcon, Moon } from 'lucide-react'
-import { User } from '../hooks/useUsers'
-import { useUsers } from '../hooks/useUsers'
+import { User, useUsers } from '../hooks/useUsers'
+import { useSession } from 'next-auth/react'
 
 
 export default function Header() {
     const [isOpen, setIsOpen] = useState(false)
+
+
+    const { data: session } = useSession()
 
     const { fetchUsers, users, loading, error } = useUsers()
     useEffect(() => {
@@ -13,12 +16,21 @@ export default function Header() {
             fetchUsers()
         }
     }, [isOpen, fetchUsers])
+
+
+    useEffect(() => {
+        console.log(session)
+    }, [session])
+
+
     return (
+
+
         <div className='h-20 flex items-center p-2 justify-between border-b relative'>
             {/* Header */}
 
             <div className="w-10 h-10 bg-gray-200 flex items-center justify-center rounded-full mx-3 cursor-pointer">
-                <h1 className="text-gray-700 font-semibold p-4 ">AD</h1>
+                <h1 className="text-gray-700 font-semibold p-4 ">{session?.user?.name}</h1>
             </div>
 
             <div className="flex gap-3">
@@ -65,7 +77,8 @@ export default function Header() {
                 {/* Moon Icon */}
                 <button className="relative group p-2 rounded-full transition duration-300">
                     <span className="absolute inset-0 bg-gray-300 rounded-full scale-0 group-hover:scale-100"></span>
-                    <Moon className="relative w-6 h-6 text-gray-600 cursor-pointer" />
+                    <Moon className="relative w-6 h-6 text-gray-600 cursor-pointer"
+                    />
                 </button>
             </div>
         </div>

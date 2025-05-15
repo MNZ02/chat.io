@@ -14,11 +14,11 @@ app.use(cors({
 }))
 
 
+app.use('/api/v1', userRoutes)
 app.use('/auth/v1', authRoutes)
 app.use('/api/v1', chatRoutes)
 
 app.use('/api/v1', messageRoutes)
-app.use('/api/v1', userRoutes)
 
 
 
