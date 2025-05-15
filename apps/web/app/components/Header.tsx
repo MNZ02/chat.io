@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { MessageCirclePlusIcon, Moon } from 'lucide-react'
 import { User, useUsers } from '../hooks/useUsers'
 import { useSession } from 'next-auth/react'
+import { useCurrentUser } from '../hooks/useCurrentUser'
 
 
 export default function Header() {
@@ -11,6 +12,7 @@ export default function Header() {
     const { data: session } = useSession()
 
     const { fetchUsers, users, loading, error } = useUsers()
+    const { user: me, loading: meLoading, error: meError } = useCurrentUser()
     useEffect(() => {
         if (isOpen) {
             fetchUsers()
@@ -30,7 +32,7 @@ export default function Header() {
             {/* Header */}
 
             <div className="w-10 h-10 bg-gray-200 flex items-center justify-center rounded-full mx-3 cursor-pointer">
-                <h1 className="text-gray-700 font-semibold p-4 ">{session?.user?.name}</h1>
+                <h1 className="text-gray-700 font-semibold p-4 ">{me?.firstName.charAt(0)}{me?.lastName.charAt(0)}</h1>
             </div>
 
             <div className="flex gap-3">
