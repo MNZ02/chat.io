@@ -26,8 +26,13 @@ export const getUser = async (req: Request, res: Response) => {
 }
 
 export const getAllUsers = async (req: Request, res: Response) => {
+    const userId = req.userId;
     try {
-        const userId = req.userId;
+        if (!userId) {
+            res.status(401).json({ message: 'Unauthorized' })
+            return
+        }
+        console.log({ userId })
         const users = await prisma.user.findMany({
             where: {
                 NOT: {

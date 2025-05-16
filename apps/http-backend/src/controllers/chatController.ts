@@ -6,7 +6,7 @@ import { ChatSchema } from "@repo/common/types";
 export const getChatByUserId = async (req: Request, res: Response) => {
     try {
 
-        const userId = req.userId
+        const userId = req.query.userId as string;
 
         if (!userId) {
             res.status(401).json({ message: "Unauthorized" });

@@ -14,7 +14,7 @@ const messages = [
     { id: 4, text: "Yes, looks great!", fromMe: true },
 ];
 
-function ChatWindow() {
+function ChatWindow({ userId }: { userId: string }) {
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const scrollToBottom = () => {

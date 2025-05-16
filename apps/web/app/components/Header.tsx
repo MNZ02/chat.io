@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { MessageCirclePlusIcon, Moon } from 'lucide-react'
 import { User, useUsers } from '../hooks/useUsers'
+import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useCurrentUser } from '../hooks/useCurrentUser'
 
@@ -9,7 +10,7 @@ export default function Header() {
     const [isOpen, setIsOpen] = useState(false)
 
 
-    const { data: session } = useSession()
+    const router = useRouter()
 
     const { fetchUsers, users, loading, error } = useUsers()
     const { user: me, loading: meLoading, error: meError } = useCurrentUser()
@@ -18,11 +19,6 @@ export default function Header() {
             fetchUsers()
         }
     }, [isOpen, fetchUsers])
-
-
-    useEffect(() => {
-        console.log(session)
-    }, [session])
 
 
     return (
@@ -60,6 +56,7 @@ export default function Header() {
                                             onClick={() => {
                                                 console.log('Selected user:', user)
                                                 setIsOpen(false)
+                                                router.push(`/chat/${user.id}`)
                                             }}
                                         >
                                             <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-sm">

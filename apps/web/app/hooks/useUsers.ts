@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 
 
 export interface User {
@@ -19,12 +20,20 @@ export function useUsers(autoFetch = false) {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
+
+    const { data: session } = useSession()
+    const token = (session as any).user.accessToken
+
     const fetchUsers = useCallback(async () => {
 
         try {
             setLoading(true)
             setError(null)
-            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE}/api/v1/all/users`)
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE}/api/v1/all/users`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
             setUsers(response.data.users)
             return response.data;
         }
