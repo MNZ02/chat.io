@@ -54,7 +54,6 @@ export default function Header() {
                                             key={user.id}
                                             className="flex items-center gap-3 p-2 hover:bg-gray-100 cursor-pointer"
                                             onClick={() => {
-                                                console.log('Selected user:', user)
                                                 setIsOpen(false)
                                                 router.push(`/chat/${user.id}`)
                                             }}
