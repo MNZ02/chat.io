@@ -22,7 +22,6 @@ export default function Login() {
             username,
             password
         })
-        console.log({ result })
         if (result?.error) {
             setError('Invalid credentials, Please try again')
         }

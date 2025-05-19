@@ -1,5 +1,5 @@
 // app/chat/[userId]/page.tsx
-'use client'  // if ChatWindow is a client component
+'use client'
 
 import { useParams } from 'next/navigation'
 import ChatWindow from '../../components/ChatWindow'
@@ -11,5 +11,5 @@ export default function ChatPage() {
         return <p>User ID not found</p>
     }
 
-    return <ChatWindow otherUserId={userId} />
+    return <ChatWindow userId={userId} />
 }

@@ -1,15 +1,26 @@
-import express from 'express'
-import { authMiddleware } from '../middlewares/authMiddleware'
-import { getChatByUserId, createChat } from '../controllers/chatController'
+import express from 'express';
+import { authMiddleware } from '../middlewares/authMiddleware';
+import {
+    listChats,
+    getChats,
+    getOrCreateDirectChat,
+    createChat
+} from '../controllers/chatController';
+
+const router: express.Router = express.Router();
 
 
-const router: express.Router = express.Router()
+router.get('/chats', authMiddleware, listChats);
 
 
-router.get('/chats', authMiddleware, getChatByUserId)
-router.post(
-    '/chat', authMiddleware, createChat
-)
+router.get('/chats/:chatId', authMiddleware, getChats);
 
+router.get(
+    '/chats/direct/:otherUserId',
+    authMiddleware,
+    getOrCreateDirectChat
+);
 
-export default router
+router.post('/chats', authMiddleware, createChat);
+
+export default router;
