@@ -7,16 +7,18 @@ import ChatWindow from '../../components/ChatWindow'
 import { useEffect } from 'react'
 
 export default function ChatPage() {
-    const { chatId } = useParams()
+    const userId = useParams();
+    // const { chatId } = useParams()
 
 
-    const { fetchChatById, activeChat, loading, error, isAuthLoading } = useChats();
+    const { getDirectChat, activeChat, loading, error, isAuthLoading } = useChats();
+    console.log({ activeChat });
 
     useEffect(() => {
         if (chatId && !isAuthLoading) {
-            fetchChatById(chatId as string);
+            getDirectChat(chatId as string);
         }
-    }, [chatId, isAuthLoading, fetchChatById]);
+    }, [chatId, isAuthLoading, getDirectChat]);
 
 
     if (isAuthLoading || loading) return <p>Loading chat…</p>;

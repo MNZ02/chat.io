@@ -26,12 +26,14 @@ export function useChats() {
         setLoading(true);
         setError(null);
         try {
-            const { data } = await axios.get<Chat[]>(
+            const response = await axios.get(
                 `${process.env.NEXT_PUBLIC_API_BASE}/api/v1/chats`,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            setChats(data);
-            return data;
+
+            const newChats = response.data.chats
+            setChats(newChats);
+            return newChats
         } catch (err: any) {
             setError(err);
             return [];
@@ -51,6 +53,7 @@ export function useChats() {
                     `${process.env.NEXT_PUBLIC_API_BASE}/api/v1/chats/${chatId}`,
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
+                console.log({ data })
                 setActiveChat(data);
                 return data;
             } catch (err: any) {
@@ -74,6 +77,7 @@ export function useChats() {
                     `${process.env.NEXT_PUBLIC_API_BASE}/api/v1/chats/direct/${otherUserId}`,
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
+                console.log({ data })
                 setActiveChat(data);
                 return data;
             } catch (err: any) {
@@ -87,16 +91,14 @@ export function useChats() {
     );
 
     return {
-        // data
         chats,
         activeChat,
         loading,
         error,
         isAuthLoading: status === "loading",
-        // actions
         fetchMyChats,
         fetchChatById,
         getDirectChat,
-        setActiveChat, // in case you want to override
+        setActiveChat,
     };
 }

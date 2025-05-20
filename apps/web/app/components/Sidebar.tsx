@@ -1,10 +1,19 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Header from './Header'
 import SearchBar from './SearchBar'
 import { Archive } from 'lucide-react'
 import ChatItem from './ChatItem'
-import { chats } from '../lib/dummyData'
+import { useChats } from '../hooks/useChats'
+
 function Sidebar() {
+
+    const { fetchMyChats, chats } = useChats()
+
+    useEffect(() => {
+        console.log({ chats })
+        fetchMyChats()
+    }, [])
+
     return (
         <div className="w-1/3 bg-gray-100 shadow-2xl m-1">
             <Header />
@@ -22,14 +31,20 @@ function Sidebar() {
 
 
             {/* User */}
-            {chats.map((chat) => (
-                <div className="flex-1 overflow-y-auto mt-2" key={chat.id}>
-                    <ChatItem key={chat.id} chat={chat} />
+            {Array.isArray(chats) && chats.length > 0 ? (
+                chats.map((chat) => (
+                    <div className="flex-1 overflow-y-auto mt-2" key={chat.id}>
+                        <ChatItem key={chat.id} chat={chat} />
 
-                </div>
-            ))}
+                    </div>
+                ))
+            ) : (
+                <div>Nothing to render</div>
+            )
 
-        </div>
+            }
+
+        </div >
 
 
     )
