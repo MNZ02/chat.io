@@ -6,6 +6,16 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 
 
+const generateRefreshToken = (userId: string) => {
+    const token = jwt.sign({ userId }, JWT_SECRET, { expiresIn: '7d' })
+    return token
+}
+
+const generateAccessToken = (userId: string) => {
+    const token = jwt.sign({ userId }, JWT_SECRET, { expiresIn: '15m' })
+    return token
+}
+
 
 export const register = async (req: Request, res: Response) => {
     try {
@@ -41,10 +51,13 @@ export const register = async (req: Request, res: Response) => {
             return
         }
 
-        const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '1h' })
 
 
-        res.status(201).json({ token })
+        const accessToken = generateAccessToken(user.id)
+        const refreshToken = generateRefreshToken(user.id)
+
+
+        res.status(201).json({ accessToken, refreshToken })
 
 
     } catch (error) {

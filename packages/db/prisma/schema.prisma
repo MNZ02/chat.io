@@ -14,19 +14,20 @@ datasource db {
 }
 
 model User {
-  id        String      @id @default(uuid())
-  firstName String
-  lastName  String
-  username  String      @unique
-  password  String
-  avatar    String?
-  lastSeen  DateTime?
+  id           String      @id @default(uuid())
+  firstName    String
+  lastName     String
+  username     String      @unique
+  password     String
+  avatar       String?
+  lastSeen     DateTime?
 
 
-  messages  Message[]
-  ChatUser  ChatUser[]
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  messages     Message[]
+  ChatUser     ChatUser[]
+  refreshToken String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 
 
 }
