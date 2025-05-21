@@ -18,7 +18,12 @@ export const listChats = async (req: Request, res: Response) => {
                 id: true,
                 isGroup: true,
                 groupName: true,
-                members: { select: { userId: true } },
+                members: {
+                    select: {
+                        userId: true,
+                        users: { select: { firstName: true, lastName: true, avatar: true } }
+                    }
+                },
                 messages: { take: 1, orderBy: { createdAt: 'desc' } }
             }
         })
