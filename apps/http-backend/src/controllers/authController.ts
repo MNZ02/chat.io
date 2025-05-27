@@ -56,6 +56,10 @@ export const register = async (req: Request, res: Response) => {
         const accessToken = generateAccessToken(user.id)
         const refreshToken = generateRefreshToken(user.id)
 
+        await prisma.user.update({
+            where: { id: user.id },
+            data: { refreshToken }
+        })
 
         res.status(201).json({ accessToken, refreshToken })
 
@@ -93,10 +97,25 @@ export const login = async (req: Request, res: Response) => {
             return
         }
 
-        const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '1h' })
+
+        const accessToken = generateAccessToken(user.id)
+        const refreshToken = generateRefreshToken(user.id)
+
+        await prisma.user.update({
+            where: { id: user.id },
+            data: { refreshToken }
+        })
 
 
-        res.status(200).json({ token })
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        })
+
+
+        res.status(200).json({ accessToken })
     } catch (error) {
         console.error('Error logging in', error)
         res.status(500).json({ message: "Internal server error" })

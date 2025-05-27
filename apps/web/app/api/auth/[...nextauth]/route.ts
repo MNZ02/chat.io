@@ -18,21 +18,24 @@ const handler = NextAuth({
             async authorize(credentials) {
                 //api call
                 try {
+                    console.log({ credentials })
                     if (!credentials?.username || !credentials?.password) {
                         return null;
                     }
                     const res = await axios.post(`${HTTP_URL}/auth/v1/login`, {
                         username: credentials.username,
                         password: credentials.password,
-                    });
+                    },
+                        { withCredentials: true }
+                    );
 
-                    const { token } = res.data;
+                    const { accessToken } = res.data;
 
-                    if (!token) {
+                    if (!accessToken) {
                         throw new Error("No token received");
                     }
                     //Decode JWT to extract userid
-                    const decodedToken = jwt.decode(token) as { userId: string }
+                    const decodedToken = jwt.decode(accessToken) as { userId: string }
 
                     if (!decodedToken || !decodedToken.userId) {
                         throw new Error("Invalid token");
@@ -40,7 +43,7 @@ const handler = NextAuth({
 
                     return {
                         id: decodedToken.userId,
-                        token,
+                        accessToken
                     };
                 } catch (error) {
                     console.error("Error in authorize:", error);
@@ -58,7 +61,7 @@ const handler = NextAuth({
         async jwt({ token, user }) {
             if (user) {
                 token.id = user.id;
-                token.accessToken = (user as any).token
+                token.accessToken = (user as any).accessToken
             }
             return token;
         },
